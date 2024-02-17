@@ -5,23 +5,22 @@ import userRoutes from './routes/user.route.js';
 import authRoutes from './routes/auth.route.js';
 import cors from 'cors'
 
-
 dotenv.config();
 const app = express();
 app.use(express.json());
-app.use(cors({
-    origin: 'http://localhost:5173',
-    credentials: true,
-  }));
-  app.options('*', cors());
+app.use(cors());
 
 
 mongoose.connect(process.env.MONGOOSE_URL)
-.then(()=> console.log('connected ...'))
-.catch(()=> console.log(error));
+.then(()=> {
+    console.log('connected ...')
+})
+.catch(()=>{
+     console.log(error)
+    });
 
 app.use('/server/user',userRoutes);
-app.use('/server/auth',authRoutes);
+app.use('/server/auth/',authRoutes);
 
 
 

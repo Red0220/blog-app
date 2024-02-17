@@ -11,21 +11,22 @@ function SignIn() {
   console.log(formData);
  // handle inputs
   const handleChange = (e)=>{
-  setFormData({...formData, [e.target.name]: e.target.value});
+  setFormData({...formData, [e.target.id]: e.target.value});
    
   }
   //handle Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch('/server/auth/signup',{
+      const res = await fetch('http://localhost:3000/server/auth/signup',{
         method: 'POST',
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type" : "application/json"
         },
         body: JSON.stringify(formData)
       });
-     const data = await res.json()
+     const data = await res.json();
+     console.log(data);
       
     } catch (error) {
       console.error(error)
