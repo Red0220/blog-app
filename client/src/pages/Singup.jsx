@@ -1,36 +1,58 @@
-import { Button, Label, TextInput } from 'flowbite-react'
+import { Alert, Button, Label, Spinner, TextInput } from 'flowbite-react'
 import  { useState } from 'react'
-import {Link} from 'react-router-dom';
+import {Link , useNavigate} from 'react-router-dom';
+import Oauth from '../components/Oauth';
 
 
 
 
 
 function SignIn() {
-  const [formData,  setFormData] = useState({})
+  const [formData,  setFormData] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [error , setError] = useState(null);
+  const navigate = useNavigate();
   console.log(formData);
  // handle inputs
   const handleChange = (e)=>{
-  setFormData({...formData, [e.target.id]: e.target.value});
+  setFormData({...formData, [e.target.id]: e.target.value.trim()});
    
   }
   //handle Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
+   
+    if(!formData.username ||
+      !formData.email ||
+      !formData.password 
+      ) {
+        return setError('Please fill out all fields');
+      }
     try {
+      setLoading(true);
+      setError(null)
       const res = await fetch('http://localhost:3000/server/auth/signup',{
         method: 'POST',
+        credentials: 'include',
+        'Authorization': 'Bearer Token',
         headers: {
           "Content-Type" : "application/json"
         },
         body: JSON.stringify(formData)
       });
      const data = await res.json();
-     console.log(data);
-      
+     if(data.success === false) {
+     return setError(data.message)
+  
+     }
+   setLoading(false);
+   if(res.ok) {
+    navigate('/signin');
+   }
     } catch (error) {
-      console.error(error)
-      
+      setLoading(false);
+    } finally {
+      setLoading(false)
     }
 
   }
@@ -70,9 +92,15 @@ function SignIn() {
               <Label value='Password'/>
               <TextInput  type='password' placeholder='password' id='password' onChange={handleChange} />
             </div>     
-                <Button gradientDuoTone='purpleToPink' type='submit' >
-                  Sign up
+                <Button gradientDuoTone='purpleToPink' type='submit' disabled={loading} >
+                  { loading ? (
+                    <>
+                    <Spinner size='sm' />
+                    <span className='pl-5'>Loading...</span>
+                    </>
+                  ) : 'Sign up'}
                 </Button>
+                <Oauth/>
              </form>
              <div className="flex gap-2 text-sm mt-5">
               <span>Have an account</span>
@@ -80,6 +108,13 @@ function SignIn() {
                 Sign in
               </Link>
              </div>
+             {
+              error && (
+                <Alert className='mt-5' color='failure'>
+                  {error}
+                </Alert>
+              )
+             }
         </div>
        </div>
     </div>
